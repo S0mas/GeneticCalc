@@ -10,59 +10,51 @@ friend class RandomTreeGenerator;
 public:
     ExpressionTree() : root(nullptr) {}
     ExpressionTree(const ExpressionTree& other);
-    //ExpressionTree(ExpressionTree&& other);
     ~ExpressionTree();
 
     void operator=(const ExpressionTree& other);
-    //void operator=(ExpressionTree&& other);
-    static void swap(ExpressionTree *left, ExpressionTree *right);
-    void createTree(const std::vector<std::string>& strVec);
-    void setVariablesValues(const std::vector<double>& valuesVec);
-
-    ExpressionTree operator+(const ExpressionTree& other) const;
-    std::string variablesToString() const;
+	void createTree(const std::vector<std::string>& strVec);
+	void mutate();
+	void setVariablesValues(const std::vector<double>& valuesVec);
+    ExpressionTree operator+(const ExpressionTree& other) const;  
     double getResult() const;
     unsigned int getNumberOfVariables() const;
-	void changeLastNode(AbstractExpressionNode * newNode);
-    std::vector<std::string> toStringVec() const;
     std::string toString() const;
-    void mutate();
+	std::string variablesToString() const;
+	std::vector<std::string> toStringVec() const;
     unsigned getTreeSize() const;
-
-
-	void ExpressionTree::lastNodeRec(AbstractExpressionNode** root, AbstractExpressionNode** lastNode);
 
     AbstractExpressionNode* root;
 private:
     std::map<const std::string, double> variablesMap;
 
+	void changeLastNode(AbstractExpressionNode * newNode);
+	void lastNodeRec(AbstractExpressionNode** root, AbstractExpressionNode** lastNode);
     void toStringVecRec(const AbstractExpressionNode* root, std::vector<std::string>& strVec) const;
-    AbstractExpressionNode* getFulfillConstant() const;
-
     void clearTree();
-    std::map<const std::string, double> getVariablesMap() const;
     void fillVariablesMap();
     void fillVariablesMapRec(const AbstractExpressionNode* root);
-    void updateVarsValuesRec(AbstractExpressionNode* root);
-
-    AbstractExpressionNode*** getRandomNode();
+    void updateVarsValuesRec(AbstractExpressionNode* root);  
 	void getRandomNodeRec(AbstractExpressionNode ** root, int & nodeNumber, AbstractExpressionNode *** randomNode);
+	void getTreeSizeRec(const AbstractExpressionNode* root, unsigned& size) const;
     AbstractExpressionNode* createNode(int& it, const int end, const std::vector<std::string>& strVec) const;
-
-    static void getTreeSizeRec(const AbstractExpressionNode* root, unsigned& size)
-    {
-        if(root)
-        {
-            ++size;
-            for(auto& child : root->getChilds())
-                getTreeSizeRec(child, size);
-        }
-    }
+	AbstractExpressionNode*** getRandomNode();
+	AbstractExpressionNode* getFulfillConstant() const;
 public:
-    static void crossOver(ExpressionTree &otherA, ExpressionTree &otherB)
+	static void swap(ExpressionTree *left, ExpressionTree *right)
+	{
+		AbstractExpressionNode* temp = left->root;
+		left->root = right->root;
+		right->root = temp;
+
+		std::map<const std::string, double> tempMap = left->variablesMap;
+		left->variablesMap = right->variablesMap;
+		right->variablesMap = tempMap;
+	}
+    static void crossOver(ExpressionTree *otherA, ExpressionTree *otherB)
     {
-		AbstractExpressionNode*** randA = otherA.getRandomNode();
-        AbstractExpressionNode*** randB = otherB.getRandomNode();
+		AbstractExpressionNode*** randA = otherA->getRandomNode();
+        AbstractExpressionNode*** randB = otherB->getRandomNode();
 
         AbstractExpressionNode* temp = **randA;
         **randA = **randB;
@@ -71,15 +63,15 @@ public:
         delete randA;
         delete randB;
     }
-    static ExpressionTree generateRandomTree(const unsigned& varsNumber, const unsigned& minNodesNumber, const unsigned& maxNodesNumber)
+    static ExpressionTree* generateRandomTree(const unsigned& varsNumber, const unsigned& minNodesNumber, const unsigned& maxNodesNumber)
     {
-        ExpressionTree expTree;
+		ExpressionTree* tree = new ExpressionTree();
         const std::map<const std::string, double>& variablesMap = RandomNodeGenerator::generateVariablesMap(varsNumber);
         int nodesNumber = Helper::getRandomNumber()%(maxNodesNumber - minNodesNumber) + minNodesNumber;
 
-        expTree.root = RandomNodeGenerator::getRandomTree(variablesMap, nodesNumber);
-        expTree.fillVariablesMap();
+		tree->root = RandomNodeGenerator::getRandomTree(variablesMap, nodesNumber);
+		tree->variablesMap = variablesMap;
 
-        return expTree;
+        return tree;
     }
 };

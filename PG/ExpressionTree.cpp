@@ -21,12 +21,6 @@ ExpressionTree::ExpressionTree(const ExpressionTree& other) : root(nullptr)
     fillVariablesMap();
 }
 
-//ExpressionTree::ExpressionTree(ExpressionTree&& other)
-//{
-//    swap(this, &other);
-//    other.root = nullptr;
-//}
-
 ExpressionTree::~ExpressionTree()
 {
     clearTree();
@@ -37,23 +31,6 @@ void ExpressionTree::operator=(const ExpressionTree& other)
     clearTree();
     root = other.root->getCopy();
     variablesMap = other.variablesMap;
-}
-
-//void ExpressionTree::operator=(ExpressionTree&& other)
-//{
-//    clearTree();
-//    swap(this, &other);
-//}
-
-void ExpressionTree::swap(ExpressionTree* left, ExpressionTree* right)
-{
-    AbstractExpressionNode* temp = left->root;
-    left->root = right->root;
-    right->root = temp;
-
-    std::map<const std::string, double> tempMap = left->variablesMap;
-    left->variablesMap = right->variablesMap;
-    right->variablesMap = tempMap;
 }
 
 void ExpressionTree::setVariablesValues(const std::vector<double>& valuesVec)
@@ -106,7 +83,6 @@ ExpressionTree ExpressionTree::operator+(const ExpressionTree& other) const
     ExpressionTree expTree;
     expTree.root = root->getCopy();
 
-	std::cout << 1 << std::endl;
     expTree.changeLastNode(other.root->getCopy());
 
     expTree.fillVariablesMap();
@@ -185,7 +161,7 @@ void ExpressionTree::mutate()
     AbstractExpressionNode*** randomNode = getRandomNode();
     delete **randomNode;
 
-    int mutationNodeOperatorsCount = Helper::getRandomNumber()%5;
+    int mutationNodeOperatorsCount = Helper::getRandomNumber()%3;
     **randomNode = RandomNodeGenerator::getRandomTree(variablesMap, mutationNodeOperatorsCount);
 
     delete randomNode;
@@ -240,11 +216,6 @@ void ExpressionTree::clearTree()
     variablesMap.clear();
 }
 
-std::map<const std::string, double> ExpressionTree::getVariablesMap() const
-{
-    return variablesMap;
-}
-
 void ExpressionTree::fillVariablesMap()
 {
 	variablesMap.clear();
@@ -280,10 +251,19 @@ void ExpressionTree::updateVarsValuesRec(AbstractExpressionNode* root)
     }
 }
 
-
 unsigned ExpressionTree::getTreeSize() const
 {
     unsigned size = 0;
     getTreeSizeRec(root, size);
     return size;
+}
+
+void ExpressionTree::getTreeSizeRec(const AbstractExpressionNode* root, unsigned& size) const
+{
+	if (root)
+	{
+		++size;
+		for (auto& child : root->getChilds())
+			getTreeSizeRec(child, size);
+	}
 }

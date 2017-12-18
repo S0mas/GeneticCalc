@@ -7,6 +7,14 @@
 class GeneticAlgorithm
 {
 public:
+	struct VauluatedTree
+	{
+		VauluatedTree() : value(std::numeric_limits<double>::max()), tree(nullptr) {}
+		VauluatedTree(double value, ExpressionTree* treePtr) : value(value), tree(treePtr) {}
+		double value;
+		ExpressionTree* tree;
+	};
+
     struct Data
     {
         Data(){}
@@ -49,16 +57,17 @@ public:
     Result process(const Setup& setup, Data &data);
 
 private:
-    void initiate(const unsigned& populationSize, std::vector<ExpressionTree>& population) const;
-    void select(const unsigned& populationSize, std::vector<ExpressionTree>& population) const;
-    ExpressionTree selectBestFromRandTwo(std::vector<ExpressionTree> &expTreesVec) const;
-    double evaluateTree(ExpressionTree &expTree) const;
-    void crossOver(const unsigned& crossOverProb, std::vector<ExpressionTree> &expTreesVec) const;
-    void crossOverTreesPair(std::pair<ExpressionTree, ExpressionTree> &expTreesPair) const;
-    std::pair<ExpressionTree, ExpressionTree> withdrawTreesPair(std::vector<ExpressionTree> &expTreesVec) const;
-    ExpressionTree withdrawRandTree(std::vector<ExpressionTree> &expTreesVec) const;
-    void mutate(const unsigned& mutateProb, std::vector<ExpressionTree> &expTreesVec) const;
-    bool lookForGoldenChild(std::vector<ExpressionTree>& population, Result &result) const;
+    void initiate(const unsigned& populationSize, std::vector<VauluatedTree>& population) const;
+	void iteration(std::vector<VauluatedTree>& population, const Setup& setup, Result& result, bool& foundChoosenOne);
+    void select(const unsigned& populationSize, std::vector<VauluatedTree>& population) const;
+	VauluatedTree selectBestFromRandTwo(const std::vector<VauluatedTree> &population) const;
+	void evaluateTree(VauluatedTree& expTree) const;
+    void crossOver(const unsigned& crossOverProb, std::vector<VauluatedTree> &expTreesVec) const;
+    void crossOverTreesPair(std::pair<VauluatedTree, VauluatedTree> &expTreesPair) const;
+    std::pair<VauluatedTree, VauluatedTree> withdrawTreesPair(std::vector<VauluatedTree> &expTreesVec) const;
+	VauluatedTree withdrawRandTree(std::vector<VauluatedTree> &expTreesVec) const;
+    void mutate(const unsigned& mutateProb, std::vector<VauluatedTree> &expTreesVec) const;
+    bool evalPopulation(std::vector<VauluatedTree>& population, Result &result) const;
 
     std::vector<std::vector<double>> dataValues;
     std::vector<double> dataResults;

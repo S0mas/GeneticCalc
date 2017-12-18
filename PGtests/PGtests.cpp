@@ -298,7 +298,7 @@ TEST(crossOver, expTree)
 	ExpressionTree* expTreeCopy = new ExpressionTree(*expTree);
 	ExpressionTree* expTreeCopy2 = new ExpressionTree(*expTree2);
 
-	ExpressionTree::crossOver(*expTree, *expTree2);
+	ExpressionTree::crossOver(expTree, expTree2);
 
 	EXPECT_FALSE(expTree->toString() == expTreeCopy->toString());
 	EXPECT_FALSE(expTree2->toString() == expTreeCopy2->toString());
